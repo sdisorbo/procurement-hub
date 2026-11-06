@@ -106,7 +106,8 @@ export function buildIndex(seriesList) {
     const avg = filled.reduce((acc, arr) => acc + arr[i] / arr[0], 0) / filled.length
     return Math.round(avg * 10000) / 100
   })
-  return { d: useDates, v, sample: valid.some((s) => s.sample) }
+  const sampleCount = valid.filter((s) => s.sample).length
+  return { d: useDates, v, sample: sampleCount > 0, sampleCount, total: valid.length }
 }
 
 const TAGS = [

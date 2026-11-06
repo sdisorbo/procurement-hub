@@ -1,10 +1,27 @@
 // Daily closes for a list of Yahoo Finance symbols (one year). No API key needed.
 // Usage: /api/quotes?symbols=LBR=F,WY,^GSPC
+const HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+  Accept: 'application/json,text/plain,*/*',
+}
+
+// Tries both Yahoo hosts, since one is sometimes rate limited when the other is not.
+const yahoo = async (symbol, query) => {
+  let lastErr
+  for (const host of ['query1', 'query2']) {
+    try {
+      const r = await fetch(`https://${host}.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?${query}`, { headers: HEADERS })
+      if (r.ok) return await r.json()
+      lastErr = new Error(`${symbol} HTTP ${r.status}`)
+    } catch (e) {
+      lastErr = e
+    }
+  }
+  throw lastErr
+}
+
 const fetchOne = async (symbol) => {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1y&interval=1d`
-  const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (procurement-hub)' } })
-  if (!r.ok) throw new Error(`${symbol} ${r.status}`)
-  const j = await r.json()
+  const j = await yahoo(symbol, 'range=1y&interval=1d')
   const result = j?.chart?.result?.[0]
   if (!result) throw new Error(`${symbol} empty`)
   const ts = result.timestamp || []
@@ -21,10 +38,7 @@ const fetchOne = async (symbol) => {
 
 // Latest price for one symbol, plus the previous close.
 const fetchLive = async (symbol) => {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1d&interval=1m`
-  const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (procurement-hub)' } })
-  if (!r.ok) throw new Error(`${symbol} ${r.status}`)
-  const j = await r.json()
+  const j = await yahoo(symbol, 'range=1d&interval=1m')
   const m = j?.chart?.result?.[0]?.meta
   if (!m || m.regularMarketPrice == null) throw new Error(`${symbol} empty`)
   return {
@@ -56,15 +70,18 @@ export default async function handler(req, res) {
     .filter(Boolean)
     .slice(0, 40)
   const out = {}
+  const errors = {}
   await Promise.all(
     symbols.map(async (s) => {
       try {
         out[s] = await fetchOne(s)
-      } catch {
-        /* skipped; the client fills gaps with sample data */
+      } catch (e) {
+        errors[s] = String(e.message || e)
       }
     }),
   )
-  res.setHeader('Cache-Control', 's-maxage=900, stale-while-revalidate=3600')
-  res.status(200).json({ series: out })
+  // Failed lookups are not cached for long, so a bad minute does not stick.
+  const ok = Object.keys(out).length === symbols.length
+  res.setHeader('Cache-Control', ok ? 's-maxage=900, stale-while-revalidate=3600' : 's-maxage=30')
+  res.status(200).json({ series: out, errors })
 }
