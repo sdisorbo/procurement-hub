@@ -16,8 +16,13 @@ function ScrollTop() {
 }
 
 function DataBanner() {
-  const { status, liveCount } = useData()
-  if (status === 'loading' || status === 'live') return null
+  const { status, liveCount, updatedAt } = useData()
+  if (status === 'loading') return null
+  if (status === 'live') {
+    return updatedAt ? (
+      <div className="banner live">Live prices, updated {updatedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}. Refreshes every minute. Some futures run 10 to 15 minutes behind.</div>
+    ) : null
+  }
   return (
     <div className="banner">
       {status === 'sample'
