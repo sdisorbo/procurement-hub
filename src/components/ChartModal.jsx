@@ -25,10 +25,20 @@ export default function ChartModal({ title, subtitle, series, unit, onClose, chi
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
-    document.body.style.overflow = 'hidden'
+    // Pinning the body is the reliable way to stop the page scrolling behind the sheet on iOS Safari.
+    const y = window.scrollY
+    const b = document.body.style
+    b.position = 'fixed'
+    b.top = `-${y}px`
+    b.left = '0'
+    b.right = '0'
     return () => {
       window.removeEventListener('keydown', onKey)
-      document.body.style.overflow = ''
+      b.position = ''
+      b.top = ''
+      b.left = ''
+      b.right = ''
+      window.scrollTo(0, y)
     }
   }, [onClose])
 

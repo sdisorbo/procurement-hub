@@ -211,3 +211,54 @@ h3 { margin: 0; font-size: 18px; font-weight: 700; }
 .dat-sub { font-size: 14px; max-width: 760px; }
 .dat-sub a { color: var(--green); }
 .dat-rows { margin-top: 16px; }
+
+/* iPhone and touch */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+button, input { touch-action: manipulation; }
+input, button { -webkit-appearance: none; appearance: none; }
+.search input { font-size: 16px; } /* 16px stops iOS from zooming in when the field is focused */
+.search input::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+/* Notch, status bar and home indicator */
+.topbar { padding-top: env(safe-area-inset-top); }
+.wrap { padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); }
+.foot { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
+.modal-backdrop { padding-top: max(4vh, env(safe-area-inset-top)); padding-bottom: max(4vh, env(safe-area-inset-bottom)); overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+
+/* Tap targets of at least 44px */
+.topbar nav a { min-height: 44px; display: inline-flex; align-items: center; }
+.chips button, .seg button { min-height: 40px; }
+.icon-btn { width: 44px; height: 44px; flex: none; }
+.btn { min-height: 46px; }
+.opt { min-height: 48px; }
+.results button { min-height: 48px; }
+.table-scroll, .topbar nav { -webkit-overflow-scrolling: touch; }
+
+/* Hover styles only where there is a real pointer, so they do not stick after a tap */
+@media (hover: none) {
+  .cat-card:hover { transform: none; border-color: var(--line); }
+  .quote-row:hover { background: transparent; }
+  .quote-row:active { background: rgba(25, 122, 86, 0.08); }
+  .opt:hover:not(:disabled) { border-color: var(--line); }
+  .btn:hover { background: var(--green); }
+  .chips button:active, .seg button:active { opacity: 0.7; }
+}
+
+@media (max-width: 640px) {
+  .wrap { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+  .page { padding-top: 14px; }
+  .brief { padding: 18px 16px; }
+  .chips { flex-wrap: nowrap; overflow-x: auto; margin-left: -16px; margin-right: -16px; padding: 0 16px 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chips button { flex: none; }
+  .topbar-in { gap: 8px; }
+  .topbar nav { flex: 1; justify-content: space-between; }
+  .cat-grid { grid-template-columns: 1fr; }
+  .quiz-card { padding: 18px 16px; }
+  .modal-backdrop { padding-left: 8px; padding-right: 8px; }
+  .results { max-width: none; }
+  .tbl { font-size: 14px; }
+}
+
+.brand { min-height: 44px; }
