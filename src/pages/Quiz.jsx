@@ -3,7 +3,8 @@ import { QUESTIONS, ADVICE } from '../data/quiz'
 import { CATEGORIES } from '../data/categories'
 import { SYMBOLS } from '../data/symbols'
 import { useData } from '../lib/DataContext'
-import { describeCondition, pctChange } from '../lib/series'
+import { changeOver } from '../lib/series'
+import { computeCategory } from '../lib/useCategory'
 
 const shuffle = (arr) => {
   const a = [...arr]
@@ -21,31 +22,26 @@ const prep = (q) => {
 }
 
 function conditionQuestions(get) {
-  const rows = CATEGORIES.map((c) => {
-    const drivers = c.commodities.map((s) => ({ s, ser: get(s) })).filter((d) => d.ser)
-    const cond = describeCondition(c.name, drivers.map((d) => d.s), drivers.map((d) => d.ser))
-    return { c, cond, drivers }
-  }).filter((r) => r.cond)
-
+  // Only categories whose read comes from real prices, not stock sentiment.
+  const rows = CATEGORIES.map((c) => ({ c, cond: computeCategory(c, get).condition })).filter((r) => r.cond && r.cond.kind === 'prices')
   const out = []
 
-  // 1. Strategy for the current tag of a random category
-  const pick = shuffle(rows).slice(0, 2)
-  pick.forEach(({ c, cond }) => {
-    const bucket = cond.level >= 3 ? 'up' : cond.level === 2 ? 'flat' : 'down'
-    const adv = ADVICE[bucket]
-    out.push(
-      prep({
-        topic: 'Current conditions',
-        q: `${c.name} currently reads as "${cond.tag}". Its price drivers moved ${cond.avg3 >= 0 ? '+' : ''}${cond.avg3.toFixed(1)}% over three months. What is the strongest opening move?`,
-        options: [adv.right, ...adv.wrong],
-        answer: 0,
-        why: adv.why,
-      }),
-    )
-  })
+  shuffle(rows)
+    .slice(0, 2)
+    .forEach(({ c, cond }) => {
+      const bucket = cond.level >= 3 ? 'up' : cond.level === 2 ? 'flat' : 'down'
+      const adv = ADVICE[bucket]
+      out.push(
+        prep({
+          topic: 'Current conditions',
+          q: `${c.name} currently reads as "${cond.tag}". Its price drivers moved ${cond.avg3 >= 0 ? '+' : ''}${cond.avg3.toFixed(1)}% over three months. What is the strongest opening move?`,
+          options: [adv.right, ...adv.wrong],
+          answer: 0,
+          why: adv.why,
+        }),
+      )
+    })
 
-  // 2. Which category moved the most
   const sorted = [...rows].sort((a, b) => Math.abs(b.cond.avg3) - Math.abs(a.cond.avg3))
   const top = sorted[0]
   const others = shuffle(sorted.slice(3)).slice(0, 3)
@@ -56,22 +52,22 @@ function conditionQuestions(get) {
         q: 'Which category has the biggest three month move in its price drivers right now, up or down?',
         options: [top.c.name, ...others.map((o) => o.c.name)],
         answer: 0,
-        why: `${top.c.name} moved ${top.cond.avg3 >= 0 ? '+' : ''}${top.cond.avg3.toFixed(1)}% on average across ${top.c.commodities.map((s) => SYMBOLS[s].name).join(', ')}.`,
+        why: `${top.c.name} moved ${top.cond.avg3 >= 0 ? '+' : ''}${top.cond.avg3.toFixed(1)}% on average across ${top.cond.drivers.join(', ')}.`,
       }),
     )
   }
 
-  // 3. Direction of a single commodity
-  const single = shuffle(rows.flatMap((r) => r.drivers))[0]
+  const singles = CATEGORIES.flatMap((c) => c.commodities.map((s) => ({ s, ser: get(s) }))).filter((x) => x.ser && changeOver(x.ser, 91) != null)
+  const single = shuffle(singles)[0]
   if (single) {
-    const ch = pctChange(single.ser, 63)
+    const ch = changeOver(single.ser, 91)
     out.push(
       prep({
         topic: 'Current conditions',
         q: `Over the last three months, ${SYMBOLS[single.s].name} is...`,
-        options: ['Up more than 3%', 'Roughly flat (within 3%)', 'Down more than 3%', 'Not enough data to say'].slice(0, 3),
+        options: ['Up more than 3%', 'Roughly flat (within 3%)', 'Down more than 3%'],
         answer: ch > 3 ? 0 : ch < -3 ? 2 : 1,
-        why: `It moved ${ch >= 0 ? '+' : ''}${ch.toFixed(1)}% over about 63 trading days.`,
+        why: `It moved ${ch >= 0 ? '+' : ''}${ch.toFixed(1)}% over three months.`,
       }),
     )
   }

@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 
 const cache = new Map()
 
-export function useNews(query, limit = 12) {
-  const key = `${query}|${limit}`
+export function useNews(query, limit = 12, opts = {}) {
+  const partners = opts.partners || ''
+  const kw = (opts.kw || []).join(',')
+  const key = `${query}|${limit}|${partners}|${kw}`
   const [state, setState] = useState(() => cache.get(key) || { loading: true, items: [], error: null })
 
   useEffect(() => {
@@ -13,7 +15,8 @@ export function useNews(query, limit = 12) {
     }
     let cancelled = false
     setState({ loading: true, items: [], error: null })
-    fetch(`/api/news?q=${encodeURIComponent(query)}&limit=${limit}`)
+    const extra = `${partners ? `&partners=${partners}` : ''}${kw ? `&kw=${encodeURIComponent(kw)}` : ''}`
+    fetch(`/api/news?q=${encodeURIComponent(query)}&limit=${limit}${extra}`)
       .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
       .then(({ ok, j }) => {
         const next = { loading: false, items: j.items || [], error: ok && j.items?.length ? null : 'No headlines came back.' }
@@ -26,7 +29,7 @@ export function useNews(query, limit = 12) {
     return () => {
       cancelled = true
     }
-  }, [key, query, limit])
+  }, [key, query, limit, partners, kw])
 
   return state
 }

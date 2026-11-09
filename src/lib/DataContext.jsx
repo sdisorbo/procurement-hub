@@ -9,6 +9,7 @@ export function DataProvider({ children }) {
   const [live, setLive] = useState({})
   const [status, setStatus] = useState('loading') // loading | live | partial | none
   const [ticks, setTicks] = useState({})
+  const [dat, setDat] = useState([])
   const [updatedAt, setUpdatedAt] = useState(null)
 
   useEffect(() => {
@@ -38,6 +39,14 @@ export function DataProvider({ children }) {
     return () => {
       cancelled = true
     }
+  }, [])
+
+  // DAT truckload rates are monthly, so one fetch is enough.
+  useEffect(() => {
+    fetch('/api/dat')
+      .then((r) => r.json())
+      .then((j) => setDat(j.months || []))
+      .catch(() => {})
   }, [])
 
   // Refresh latest prices every minute while the tab is visible.
@@ -75,7 +84,14 @@ export function DataProvider({ children }) {
   }, [])
 
   const value = useMemo(() => {
+    const datSeries = (key) => {
+      const [, kind, eq] = key.split(':')
+      const rows = dat.filter((m) => m[kind]?.[eq] != null)
+      if (rows.length < 2) return null
+      return { d: rows.map((m) => `${m.month}-15`), v: rows.map((m) => m[kind][eq]), monthly: true }
+    }
     const get = (sym) => {
+      if (sym.startsWith('DAT:')) return datSeries(sym)
       if (live[sym]) {
         const t = ticks[sym]
         if (!t) return live[sym]
@@ -93,8 +109,8 @@ export function DataProvider({ children }) {
       }
       return null
     }
-    return { get, status, updatedAt, liveCount: Object.keys(live).length }
-  }, [live, ticks, status, updatedAt])
+    return { get, status, updatedAt, dat, liveCount: Object.keys(live).length }
+  }, [live, ticks, status, updatedAt, dat])
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }

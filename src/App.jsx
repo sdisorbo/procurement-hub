@@ -26,7 +26,7 @@ function DataBanner() {
   return (
     <div className="banner">
       {status === 'none'
-        ? 'Prices are unavailable right now. The price feed did not respond, so charts and tags are hidden.'
+        ? 'Stock and commodity prices are unavailable right now because the price feed did not respond. Those charts are hidden.'
         : `Prices loaded for ${liveCount} symbols. The rest are marked No data.`}
     </div>
   )

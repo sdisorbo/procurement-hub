@@ -7,6 +7,7 @@ import ConditionTag from '../components/ConditionTag'
 import SupplierMap from '../components/SupplierMap'
 import NewsList from '../components/NewsList'
 import ConstituentsTable from '../components/ConstituentsTable'
+import DatPanel from '../components/DatPanel'
 
 export default function Category() {
   const { id } = useParams()
@@ -58,6 +59,13 @@ function CategoryView({ cat }) {
         ))}
       </div>
 
+      {cat.dat && (
+        <>
+          <h2>DAT truckload rates</h2>
+          <DatPanel />
+        </>
+      )}
+
       <h2>Top suppliers</h2>
       <SupplierMap suppliers={cat.suppliers} />
       <div className="table-scroll">
@@ -86,7 +94,12 @@ function CategoryView({ cat }) {
       </div>
 
       <h2>{cat.name} news</h2>
-      <NewsList query={cat.newsQuery} limit={12} />
+      <NewsList
+        query={cat.newsQuery}
+        limit={12}
+        partners="match"
+        kw={[...cat.name.toLowerCase().split(/[\s,]+/).filter((w) => w.length > 3), ...(cat.keywords || [])]}
+      />
     </div>
   )
 }

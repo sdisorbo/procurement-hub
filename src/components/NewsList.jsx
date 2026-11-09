@@ -1,7 +1,7 @@
 import { useNews, timeAgo } from '../lib/useNews'
 
-export default function NewsList({ query, limit = 10, compact = false }) {
-  const { loading, items, error } = useNews(query, limit)
+export default function NewsList({ query, limit = 10, compact = false, partners, kw }) {
+  const { loading, items, error } = useNews(query, limit, { partners, kw })
   if (loading) {
     return (
       <ul className="news-list">

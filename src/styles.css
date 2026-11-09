@@ -207,3 +207,7 @@ h3 { margin: 0; font-size: 18px; font-weight: 700; }
 .r-label { font-weight: 600; }
 .r-sub { font-size: 13px; }
 .results .none { padding: 10px 12px; }
+
+.dat-sub { font-size: 14px; max-width: 760px; }
+.dat-sub a { color: var(--green); }
+.dat-rows { margin-top: 16px; }

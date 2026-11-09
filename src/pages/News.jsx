@@ -10,12 +10,13 @@ const TOPICS = [
   { id: 'logistics', label: 'Logistics', q: 'freight rates OR port congestion OR logistics costs' },
   { id: 'commodities', label: 'Commodities', q: 'commodity prices raw materials costs' },
   { id: 'risk', label: 'Supply chain risk', q: 'supply chain disruption shortage' },
+  { id: 'insights', label: 'Inverto and GEP', q: 'procurement', partners: 'only' },
 ]
 
 const BRIEF_SOURCES = [TOPICS[0].q, TOPICS[2].q, TOPICS[4].q, TOPICS[5].q]
 
 function DailyBrief() {
-  const a = useNews(BRIEF_SOURCES[0], 8)
+  const a = useNews(BRIEF_SOURCES[0], 8, { partners: 'merge' })
   const b = useNews(BRIEF_SOURCES[1], 8)
   const c = useNews(BRIEF_SOURCES[2], 8)
   const d = useNews(BRIEF_SOURCES[3], 8)
@@ -77,7 +78,7 @@ export default function News() {
   return (
     <div className="page">
       <h1>News</h1>
-      <p className="lede">Sourcing and procurement headlines, refreshed every 15 minutes.</p>
+      <p className="lede">Sourcing and procurement headlines from Google News, Inverto and GEP, refreshed every 15 minutes.</p>
       <HomeSearch />
       <DailyBrief />
       <div className="chips">
@@ -87,7 +88,7 @@ export default function News() {
           </button>
         ))}
       </div>
-      <NewsList key={topic} query={t.q} limit={20} />
+      <NewsList key={topic} query={t.q} limit={20} partners={t.partners || (t.id === 'all' || t.id === 'sourcing' ? 'merge' : undefined)} />
     </div>
   )
 }

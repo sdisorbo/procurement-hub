@@ -128,6 +128,41 @@ export const SYMBOLS = {
   CTVA: S('Corteva'),
   MOS: S('Mosaic'),
   DAR: S('Darling Ingredients'),
+
+  // MRO
+  GWW: S('Grainger'), FAST: S('Fastenal'), MSM: S('MSC Industrial'), WCC: S('Wesco'), AIT: S('Applied Industrial'),
+  FERG: S('Ferguson'), MMM: S('3M'), GPC: S('Genuine Parts'), DNOW: S('DNOW'),
+
+  // Data centers
+  EQIX: S('Equinix'), DLR: S('Digital Realty'), VRT: S('Vertiv'), ETN: S('Eaton'), SMCI: S('Super Micro Computer'),
+  ANET: S('Arista Networks'), NVDA: S('NVIDIA'), GEV: S('GE Vernova'), DELL: S('Dell Technologies'),
+
+  // Clean energy
+  ICLN: S('Global clean energy ETF (ICLN)'), TAN: S('Solar ETF (TAN)'), LIT: S('Lithium and battery ETF (LIT)'),
+  FSLR: S('First Solar'), ENPH: S('Enphase Energy'), NEE: S('NextEra Energy'), ALB: S('Albemarle'),
+  BEP: S('Brookfield Renewable'), PLUG: S('Plug Power'),
+
+  // IT
+  IGV: S('Software ETF (IGV)'), MSFT: S('Microsoft'), ORCL: S('Oracle'), CRM: S('Salesforce'), ACN: S('Accenture'),
+  IBM: S('IBM'), CSCO: S('Cisco'), NOW: S('ServiceNow'), HPQ: S('HP Inc'),
+
+  // Contingent labor
+  RHI: S('Robert Half'), MAN: S('ManpowerGroup'), KFRC: S('Kforce'), KELYA: S('Kelly Services'), ASGN: S('ASGN'),
+  TBI: S('TrueBlue'), 'RAND.AS': S('Randstad'), 'ADEN.SW': S('Adecco'),
+
+  // Life sciences
+  XBI: S('Biotech ETF (XBI)'), TMO: S('Thermo Fisher'), DHR: S('Danaher'), A: S('Agilent'), WAT: S('Waters'),
+  IQV: S('IQVIA'), CRL: S('Charles River Labs'), MTD: S('Mettler-Toledo'), WST: S('West Pharmaceutical'),
 }
 
 export const nameOf = (sym) => SYMBOLS[sym]?.name || sym
+
+const EQUIP = { van: 'van', reefer: 'reefer', flatbed: 'flatbed' }
+// Names for DAT rate series, keyed like DAT:spot:van
+export const driverName = (key) => {
+  if (key.startsWith('DAT:')) {
+    const [, kind, eq] = key.split(':')
+    return `DAT ${EQUIP[eq]} ${kind} rate`
+  }
+  return nameOf(key)
+}

@@ -60,39 +60,77 @@ export function buildIndex(seriesList) {
 }
 
 const TAGS = [
-  { min: 8, tag: "Seller's market", level: 4, advice: 'Prices are climbing. Lock volume early, widen the supplier list, and expect pushback on payment terms.' },
+  { min: 8, tag: "Seller's market", level: 4, advice: 'Prices are high and climbing. Lock volume early, widen the supplier list, and expect pushback on payment terms.' },
   { min: 3, tag: 'Firming', level: 3, advice: 'Prices are edging up. Consider layering in forward cover and test index linked pricing.' },
   { min: -3, tag: 'Balanced', level: 2, advice: 'Prices are flat. A good window to renegotiate terms, qualify a second source, or simplify specs.' },
   { min: -8, tag: 'Softening', level: 1, advice: 'Prices are slipping. Push for lower rates at renewal and avoid long fixed price commitments.' },
   { min: -Infinity, tag: "Buyer's market", level: 0, advice: 'Prices are falling. Press for rebates, shorter terms and volume flexibility.' },
 ]
 
-export function describeCondition(name, drivers, driverSeries) {
-  const pairs = drivers.map((sym, i) => ({ sym, s: driverSeries[i] })).filter((p) => p.s)
-  if (!pairs.length) return null
-  const usable = pairs.map((p) => p.s)
-  drivers = pairs.map((p) => p.sym)
-  const ch3 = usable.map((s) => pctChange(s, 63))
-  const ch12 = usable.map((s) => pctChange(s, 252))
-  const avg3 = ch3.reduce((a, b) => a + b, 0) / ch3.length
-  const avg12 = ch12.reduce((a, b) => a + b, 0) / ch12.length
-  const vol = usable.reduce((a, s) => a + volatility(s), 0) / usable.length
-  const tag = TAGS.find((t) => avg3 >= t.min)
-  const volLabel = vol > 45 ? 'high' : vol > 22 ? 'moderate' : 'low'
+// Change over a number of calendar days, found by date so daily and monthly series both work.
+export function changeOver(s, days) {
+  const n = s.d.length
+  if (n < 2) return null
+  const end = new Date(s.d[n - 1] + 'T12:00:00Z')
+  const first = new Date(s.d[0] + 'T12:00:00Z')
+  if ((end - first) / 86400000 < days * 0.7) return null
+  const target = new Date(end)
+  target.setUTCDate(target.getUTCDate() - days)
+  const t = target.toISOString().slice(0, 10)
+  let i = 0
+  for (let k = n - 1; k >= 0; k--) {
+    if (s.d[k] <= t) {
+      i = k
+      break
+    }
+  }
+  return (s.v[n - 1] / s.v[i] - 1) * 100
+}
+
+const avg = (arr) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null)
+
+// drivers: [{ label, series }]. kind 'stocks' means the drivers are equity prices, so the read is about sentiment.
+export function describeCondition(name, drivers, { kind = 'prices' } = {}) {
+  const rows = drivers.filter((d) => d.series)
+  if (!rows.length) return null
+  const ch3 = rows.map((r) => changeOver(r.series, 91))
+  const ch12 = rows.map((r) => changeOver(r.series, 365))
+  const avg3 = avg(ch3.filter((x) => x != null))
+  const avg12 = avg(ch12.filter((x) => x != null))
+  if (avg3 == null && avg12 == null) return null
+  // Recent move counts most, but a big move over the year keeps the read from calling an elevated market flat.
+  const score = (avg3 ?? 0) + 0.25 * (avg12 ?? 0)
+  const tag = TAGS.find((t) => score >= t.min)
+  const vols = rows.filter((r) => !r.series.monthly).map((r) => volatility(r.series))
+  const vol = avg(vols)
+  const volLabel = vol == null ? null : vol > 45 ? 'high' : vol > 22 ? 'moderate' : 'low'
+
   let lead = null
-  usable.forEach((s, i) => {
-    if (!lead || Math.abs(ch3[i]) > Math.abs(lead.ch)) lead = { sym: drivers[i], ch: ch3[i] }
+  rows.forEach((r, i) => {
+    if (ch3[i] != null && (!lead || Math.abs(ch3[i]) > Math.abs(lead.ch))) lead = { label: r.label, ch: ch3[i] }
   })
   const dir = (x) => (x >= 0 ? 'up' : 'down')
   const f = (x) => `${Math.abs(x).toFixed(1)}%`
-  const leadName = lead ? SYMBOLS[lead.sym]?.name || lead.sym : ''
-  const parts = [
-    `${name} price drivers are ${dir(avg3)} ${f(avg3)} over three months and ${dir(avg12)} ${f(avg12)} over twelve.`,
-    usable.length > 1 ? `${leadName} moved the most (${lead.ch >= 0 ? '+' : '-'}${f(lead.ch)}).` : '',
-    `Volatility is ${volLabel}.`,
-    tag.advice,
-  ]
-  return { tag: tag.tag, level: tag.level, summary: parts.filter(Boolean).join(' '), avg3, avg12, vol, volLabel }
+  const subject = kind === 'stocks' ? `${name} supplier stocks are` : `${name} price drivers are`
+  const parts = []
+  if (avg3 != null && avg12 != null) parts.push(`${subject} ${dir(avg3)} ${f(avg3)} over three months and ${dir(avg12)} ${f(avg12)} over twelve.`)
+  else if (avg3 != null) parts.push(`${subject} ${dir(avg3)} ${f(avg3)} over three months.`)
+  else parts.push(`${subject} ${dir(avg12)} ${f(avg12)} over twelve months.`)
+  if (rows.length > 1 && lead) parts.push(`${lead.label} moved the most over three months (${lead.ch >= 0 ? '+' : '-'}${f(lead.ch)}).`)
+  if (volLabel) parts.push(`Volatility is ${volLabel}.`)
+  parts.push(kind === 'stocks' ? 'This reads investor sentiment about suppliers, not prices you pay, so check rate cards and quotes before acting on it.' : tag.advice)
+  return {
+    tag: tag.tag,
+    level: tag.level,
+    summary: parts.join(' '),
+    avg3: avg3 ?? avg12,
+    avg12,
+    vol,
+    volLabel,
+    lead,
+    kind,
+    drivers: rows.map((r) => r.label),
+  }
 }
 
 export const fmtPrice = (n) => {
