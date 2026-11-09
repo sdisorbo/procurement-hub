@@ -280,3 +280,34 @@ input, button { -webkit-appearance: none; appearance: none; }
   .ticker-track { animation: none; }
   .ticker-set[aria-hidden="true"] { display: none; }
 }
+
+/* Watchlist and movers */
+.star { flex: none; width: 44px; height: 44px; display: grid; place-items: center; background: transparent; border: 0; color: #a79f86; cursor: pointer; border-radius: 50%; }
+.star.on { color: #c79a1d; }
+.star:hover { color: #c79a1d; }
+.quote-wrap { display: flex; align-items: center; border-bottom: 1px solid var(--line); }
+.quote-wrap .quote-row { border-bottom: 0; flex: 1; min-width: 0; padding-left: 0; }
+.quote-wrap .star { margin-right: 2px; }
+.card-wrap { position: relative; }
+.card-wrap .cat-card { height: 100%; }
+.card-star { position: absolute; top: 6px; right: 6px; }
+.card-wrap .cat-top { padding-right: 34px; }
+.cat-title .star { margin-left: -6px; }
+.watch-sec { margin-top: 24px; }
+.watch-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.watch-head h2 { margin: 12px 0; }
+.inline-link { color: var(--green); font-weight: 600; }
+.brief-sub { margin: 18px 0 4px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em; color: #a9c7b8; font-weight: 700; }
+.movers h3 { margin: 12px 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em; color: #a9c7b8; }
+.mv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.mv-title { font-size: 12px; font-weight: 700; color: #a9c7b8; margin-bottom: 4px; }
+.mv-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: rgba(255,255,255,0.08); border-radius: 10px; padding: 9px 12px; margin-bottom: 6px; text-decoration: none; color: #f3efe4; min-height: 44px; }
+.mv-name { font-weight: 600; font-size: 15px; display: flex; flex-direction: column; min-width: 0; }
+.mv-name small { font-weight: 400; color: #a9c7b8; font-size: 11px; }
+.mv-ch { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mv-ch.up { color: #5fe3a3; }
+.mv-ch.down { color: #d3a8f5; }
+.mv-none { color: #a9c7b8; font-size: 14px; padding: 8px 0; }
+.mv-note { font-size: 12.5px; color: #a9c7b8; margin: 4px 0 0; }
+@media (max-width: 640px) { .mv-grid { grid-template-columns: 1fr; gap: 4px; } }
+@media (hover: none) { .star:hover { color: #a79f86; } .star.on:hover { color: #c79a1d; } }

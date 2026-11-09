@@ -53,6 +53,7 @@ export default function Indexes() {
         {custom.list.filter(({ cat }) => matches(q, cat.name, 'index', ...cat.basket)).map(({ cat, basket, index }) => (
           <QuoteRow
             key={cat.id}
+            watchKey={`cat:${cat.id}`}
             label={cat.name.toUpperCase()}
             sub={`${cat.basket.length} companies: ${cat.basket.slice(0, 4).join(', ')}${cat.basket.length > 4 ? '...' : ''}`}
             series={index}
@@ -73,6 +74,7 @@ export default function Indexes() {
             {list.map((s) => (
               <QuoteRow
                 key={s}
+                watchKey={`sym:${s}`}
                 label={s}
                 sub={SYMBOLS[s]?.name}
                 series={get(s)}

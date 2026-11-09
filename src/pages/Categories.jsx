@@ -7,6 +7,7 @@ import { useCategoryData } from '../lib/useCategory'
 import { sliceRange, periodChange, fmtPct } from '../lib/series'
 import Sparkline from '../components/Sparkline'
 import ConditionTag from '../components/ConditionTag'
+import WatchStar from '../components/WatchStar'
 
 function Card({ cat }) {
   const { index, condition } = useCategoryData(cat)
@@ -46,7 +47,10 @@ export default function Categories() {
       <SearchInput value={q} onChange={setQ} placeholder="Search categories, companies or tickers" />
       <div className="cat-grid">
         {shown.map((c) => (
-          <Card key={c.id} cat={c} />
+          <div className="card-wrap" key={c.id}>
+            <Card cat={c} />
+            <WatchStar watchKey={`cat:${c.id}`} className="card-star" />
+          </div>
         ))}
       </div>
       {!shown.length && <p className="note">No category matches "{q}".</p>}

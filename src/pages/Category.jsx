@@ -8,6 +8,7 @@ import SupplierMap from '../components/SupplierMap'
 import NewsList from '../components/NewsList'
 import ConstituentsTable from '../components/ConstituentsTable'
 import DatPanel from '../components/DatPanel'
+import WatchStar from '../components/WatchStar'
 
 export default function Category() {
   const { id } = useParams()
@@ -30,6 +31,7 @@ function CategoryView({ cat }) {
       <Link to="/categories" className="back">All categories</Link>
       <div className="cat-title">
         <h1>{cat.name}</h1>
+        <WatchStar watchKey={`cat:${cat.id}`} />
         {condition && <ConditionTag tag={condition.tag} level={condition.level} />}
       </div>
       {condition ? <p className="summary">{condition.summary}</p> : <p className="note">Market read unavailable because price data did not load.</p>}
@@ -42,6 +44,7 @@ function CategoryView({ cat }) {
       <h2>Prices</h2>
       <div className="rows">
         <QuoteRow
+          watchKey={`cat:${cat.id}`}
           label={`${cat.name} supplier index`}
           sub={`Synthetic, equal weight, ${cat.basket.length} public companies`}
           series={index}
@@ -51,6 +54,7 @@ function CategoryView({ cat }) {
         {commodities.map((c) => (
           <QuoteRow
             key={c.symbol}
+            watchKey={`sym:${c.symbol}`}
             label={c.symbol}
             sub={SYMBOLS[c.symbol]?.name}
             series={c.series}
