@@ -22,7 +22,7 @@ export default function App() {
       <header className="topbar">
         <div className="wrap topbar-in">
           <NavLink to="/" className="brand">
-            <span className="brand-mark" />
+            <img src="/favicon.svg" alt="" className="brand-mark" width="26" height="26" />
             <span className="brand-text">
             Procurement Hub</span>
           </NavLink>
