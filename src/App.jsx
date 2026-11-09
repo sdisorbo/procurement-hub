@@ -1,6 +1,6 @@
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
-import { useData } from './lib/DataContext'
+import Ticker from './components/Ticker'
 import News from './pages/News'
 import Categories from './pages/Categories'
 import Category from './pages/Category'
@@ -15,26 +15,10 @@ function ScrollTop() {
   return null
 }
 
-function DataBanner() {
-  const { status, liveCount, updatedAt } = useData()
-  if (status === 'loading') return null
-  if (status === 'live') {
-    return updatedAt ? (
-      <div className="banner live">Live prices, updated {updatedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}. Refreshes every minute. Some futures run 10 to 15 minutes behind.</div>
-    ) : null
-  }
-  return (
-    <div className="banner">
-      {status === 'none'
-        ? 'Stock and commodity prices are unavailable right now because the price feed did not respond. Those charts are hidden.'
-        : `Prices loaded for ${liveCount} symbols. The rest are marked No data.`}
-    </div>
-  )
-}
-
 export default function App() {
   return (
     <>
+      <div className="sticky-head">
       <header className="topbar">
         <div className="wrap topbar-in">
           <NavLink to="/" className="brand">
@@ -50,7 +34,8 @@ export default function App() {
           </nav>
         </div>
       </header>
-      <DataBanner />
+      <Ticker />
+      </div>
       <main className="wrap">
         <ScrollTop />
         <Routes>
