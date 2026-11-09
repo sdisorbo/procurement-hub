@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useNews, timeAgo } from '../lib/useNews'
 import NewsList from '../components/NewsList'
+import HomeSearch from '../components/HomeSearch'
 
 const TOPICS = [
   { id: 'all', label: 'All', q: 'procurement OR strategic sourcing OR "supply chain" purchasing' },
@@ -77,6 +78,7 @@ export default function News() {
     <div className="page">
       <h1>News</h1>
       <p className="lede">Sourcing and procurement headlines, refreshed every 15 minutes.</p>
+      <HomeSearch />
       <DailyBrief />
       <div className="chips">
         {TOPICS.map((x) => (

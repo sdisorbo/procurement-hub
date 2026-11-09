@@ -131,12 +131,8 @@ export default function ChartModal({ title, subtitle, series, unit, onClose, chi
             )}
           </svg>
         </div>
-        {series.sample && (
-          <p className="note">
-            {series.total
-              ? `${series.sampleCount} of ${series.total} companies in this index are showing sample data because their live price did not load.`
-              : 'Sample data. The live price for this symbol did not load.'}
-          </p>
+        {series.total > series.members && (
+          <p className="note">{series.total - series.members} of {series.total} companies are left out because their price did not load.</p>
         )}
         {children}
       </div>

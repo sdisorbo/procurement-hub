@@ -31,7 +31,7 @@ function CategoryView({ cat }) {
         <h1>{cat.name}</h1>
         {condition && <ConditionTag tag={condition.tag} level={condition.level} />}
       </div>
-      {condition && <p className="summary">{condition.summary}</p>}
+      {condition ? <p className="summary">{condition.summary}</p> : <p className="note">Market read unavailable because price data did not load.</p>}
       <ul className="watch">
         {cat.watch.map((w) => (
           <li key={w}>{w}</li>

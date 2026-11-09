@@ -15,7 +15,7 @@ export default function ConstituentsTable({ items }) {
           </tr>
         </thead>
         <tbody>
-          {items.map(({ symbol, series }) => {
+          {items.filter((i) => i.series).map(({ symbol, series }) => {
             const cells = [21, 63, 252].map((n) => pctChange(series, n))
             return (
               <tr key={symbol}>

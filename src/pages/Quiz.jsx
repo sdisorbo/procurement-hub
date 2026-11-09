@@ -22,8 +22,8 @@ const prep = (q) => {
 
 function conditionQuestions(get) {
   const rows = CATEGORIES.map((c) => {
-    const drivers = c.commodities.map((s) => ({ s, ser: get(s) }))
-    const cond = describeCondition(c.name, c.commodities, drivers.map((d) => d.ser))
+    const drivers = c.commodities.map((s) => ({ s, ser: get(s) })).filter((d) => d.ser)
+    const cond = describeCondition(c.name, drivers.map((d) => d.s), drivers.map((d) => d.ser))
     return { c, cond, drivers }
   }).filter((r) => r.cond)
 
@@ -150,7 +150,7 @@ export default function Quiz() {
         <p className="lede">Ten scenario questions on sourcing strategy and tactics, plus a few on what the markets are doing right now.</p>
         <div className="quiz-card">
           <p>Best score: <strong>{best}/10</strong></p>
-          {status !== 'live' && <p className="note">Market questions use sample prices while the live feed is unavailable.</p>}
+          {status === 'none' && <p className="note">Prices are unavailable right now, so the questions about current markets will be skipped.</p>}
           <button className="btn" onClick={start}>Start a round</button>
         </div>
       </div>

@@ -25,9 +25,9 @@ function DataBanner() {
   }
   return (
     <div className="banner">
-      {status === 'sample'
-        ? 'Showing sample prices. The live price feed did not respond, so charts and tags are illustrative.'
-        : `Live prices loaded for ${liveCount} symbols. The rest show sample data.`}
+      {status === 'none'
+        ? 'Prices are unavailable right now. The price feed did not respond, so charts and tags are hidden.'
+        : `Prices loaded for ${liveCount} symbols. The rest are marked No data.`}
     </div>
   )
 }

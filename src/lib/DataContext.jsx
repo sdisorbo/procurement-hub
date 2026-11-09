@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { ALL_SYMBOLS } from '../data/categories'
-import { sampleSeries } from './series'
 
 const Ctx = createContext(null)
 
@@ -8,7 +7,7 @@ const chunk = (arr, n) => Array.from({ length: Math.ceil(arr.length / n) }, (_, 
 
 export function DataProvider({ children }) {
   const [live, setLive] = useState({})
-  const [status, setStatus] = useState('loading') // loading | live | partial | sample
+  const [status, setStatus] = useState('loading') // loading | live | partial | none
   const [ticks, setTicks] = useState({})
   const [updatedAt, setUpdatedAt] = useState(null)
 
@@ -26,14 +25,14 @@ export function DataProvider({ children }) {
               if (v.v.length > 20) got[k] = v
             })
           } catch {
-            /* fall through to sample data */
+            /* symbol stays unavailable */
           }
         }),
       )
       if (cancelled) return
       setLive(got)
       const n = Object.keys(got).length
-      setStatus(n === 0 ? 'sample' : n < ALL_SYMBOLS.length ? 'partial' : 'live')
+      setStatus(n === 0 ? 'none' : n < ALL_SYMBOLS.length ? 'partial' : 'live')
     }
     run()
     return () => {
@@ -76,7 +75,6 @@ export function DataProvider({ children }) {
   }, [])
 
   const value = useMemo(() => {
-    const cache = {}
     const get = (sym) => {
       if (live[sym]) {
         const t = ticks[sym]
@@ -93,8 +91,7 @@ export function DataProvider({ children }) {
         }
         return { ...base, d, v }
       }
-      if (!cache[sym]) cache[sym] = sampleSeries(sym)
-      return cache[sym]
+      return null
     }
     return { get, status, updatedAt, liveCount: Object.keys(live).length }
   }, [live, ticks, status, updatedAt])
