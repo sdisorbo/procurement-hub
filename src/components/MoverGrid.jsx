@@ -2,6 +2,8 @@ import { useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useData } from '../lib/DataContext'
 import { marketMovers } from '../lib/market'
+import ChartModal from './ChartModal'
+import NewsList from './NewsList'
 
 const PAGE = 16
 const NEUTRAL = [233, 227, 208] // bone, close to the page background
@@ -21,6 +23,7 @@ export default function MoverGrid() {
   const { get, status } = useData()
   const [page, setPage] = useState(0)
   const touch = useRef(null)
+  const [open, setOpen] = useState(null)
   const m = useMemo(() => marketMovers(get), [get])
 
   if (status === 'loading') return <div className="mover-grid skeleton-grid" />
@@ -51,14 +54,14 @@ export default function MoverGrid() {
         onTouchEnd={onTouchEnd}
       >
         {shown.map((t) => (
-          <Link key={t.kind + t.label} to={t.to} className="tile" style={shade(t.ch, max)} title={`${t.name}, ${t.kind}`}>
+          <button key={t.kind + t.label} className="tile" style={shade(t.ch, max)} title={`${t.name}, ${t.kind}`} onClick={() => setOpen(t)}>
             <span className="tile-label">{t.label}</span>
             <span className="tile-sub">{t.kind === 'Stock' ? t.name : t.kind}</span>
             <span className="tile-ch">
               {t.ch >= 0 ? '+' : '-'}
               {Math.abs(t.ch).toFixed(2)}%
             </span>
-          </Link>
+          </button>
         ))}
       </div>
 
@@ -79,6 +82,24 @@ export default function MoverGrid() {
           »»
         </button>
       </div>
+
+      {open && (
+        <ChartModal
+          title={open.kind === 'Stock' ? `${open.label} · ${open.name}` : open.name}
+          subtitle={`${open.kind}, 1 day ${open.ch >= 0 ? '+' : '-'}${Math.abs(open.ch).toFixed(2)}%`}
+          series={open.series}
+          unit={open.unit}
+          onClose={() => setOpen(null)}
+        >
+          <p className="modal-link">
+            <Link to={open.to} onClick={() => setOpen(null)}>
+              {open.kind === 'Market' ? 'See it on the Indexes page' : `Open the ${open.cat?.name || ''} page`}
+            </Link>
+          </p>
+          <h4 className="modal-h">Related news</h4>
+          <NewsList query={open.query} limit={6} compact partners={open.kind === 'Index' ? 'match' : undefined} kw={open.cat ? [...open.cat.name.toLowerCase().split(/[\s,]+/).filter((w) => w.length > 3), ...(open.cat.keywords || [])] : undefined} />
+        </ChartModal>
+      )}
 
       <div className="grid-note">
         <span className="legend">

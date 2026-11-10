@@ -18,13 +18,15 @@ async function history(symbol) {
   const r = await yf.chart(symbol, { period1: start, interval: '1d' })
   const d = []
   const v = []
+  const vol = []
   for (const row of r.quotes || []) {
     if (row.close == null || !row.date) continue
     d.push(new Date(row.date).toISOString().slice(0, 10))
     v.push(Math.round(row.close * 10000) / 10000)
+    vol.push(row.volume ?? 0)
   }
   if (d.length < 5) throw new Error('no data')
-  return { d, v, currency: r.meta?.currency || '' }
+  return { d, v, vol, currency: r.meta?.currency || '' }
 }
 
 export default async function handler(req, res) {
@@ -40,6 +42,7 @@ export default async function handler(req, res) {
         if (q?.regularMarketPrice == null) continue
         prices[q.symbol] = {
           price: q.regularMarketPrice,
+          volume: q.regularMarketVolume ?? null,
           time: q.regularMarketTime ? new Date(q.regularMarketTime).toISOString() : null,
         }
       }

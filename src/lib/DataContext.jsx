@@ -100,12 +100,16 @@ export function DataProvider({ children }) {
         const day = (t.time || new Date().toISOString()).slice(0, 10)
         const d = [...base.d]
         const v = [...base.v]
-        if (d[d.length - 1] === day) v[v.length - 1] = t.price
-        else if (day > d[d.length - 1]) {
+        const vol = base.vol ? [...base.vol] : null
+        if (d[d.length - 1] === day) {
+          v[v.length - 1] = t.price
+          if (vol && t.volume) vol[vol.length - 1] = t.volume
+        } else if (day > d[d.length - 1]) {
           d.push(day)
           v.push(t.price)
+          if (vol) vol.push(t.volume ?? 0)
         }
-        return { ...base, d, v }
+        return { ...base, d, v, vol }
       }
       return null
     }

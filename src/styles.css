@@ -400,3 +400,11 @@ input, button { -webkit-appearance: none; appearance: none; }
 @media (hover: hover) { .pager button:not(:disabled):hover { border-color: var(--green); } }
 .pager-info { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; text-align: center; flex: 1; }
 .mover-grid { touch-action: pan-y; }
+
+/* Tile modal */
+button.tile { font: inherit; text-align: left; border: 0; cursor: pointer; color: inherit; }
+.vol-svg { display: block; margin-top: 2px; touch-action: pan-y; }
+.modal-link { margin: 14px 0 0; font-size: 15px; font-weight: 600; }
+.modal-link a { color: var(--green); }
+.modal-h { margin: 18px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.09em; }
+.modal .news-list { border-top: 1px solid var(--line); }

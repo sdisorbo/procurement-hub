@@ -11,27 +11,27 @@ export const dayChange = (s) => (s && s.v.length > 1 ? (s.v[s.v.length - 1] / s.
 export function marketMovers(get) {
   const items = []
   const seen = new Set()
-  const add = (kind, label, name, series, to) => {
+  const add = (kind, label, name, series, to, extra = {}) => {
     const ch = dayChange(series)
     if (ch == null || !Number.isFinite(ch)) return
-    items.push({ kind, label, name, ch, to, sub: kind === 'Stock' ? name : '' })
+    items.push({ kind, label, name, ch, to, series, ...extra })
   }
 
   CATEGORIES.forEach((c) => {
-    add('Index', c.name, `${c.name} supplier index`, buildIndex(c.basket.map((b) => get(b))), `/categories/${c.id}`)
+    add('Index', c.name, `${c.name} supplier index`, buildIndex(c.basket.map((b) => get(b))), `/categories/${c.id}`, { query: c.newsQuery, unit: 'index, base 100', cat: c })
   })
 
   const markets = new Set([...BENCHMARKS.flatMap((g) => g.symbols), ...CATEGORIES.flatMap((c) => c.commodities)])
   markets.forEach((sym) => {
     seen.add(sym)
-    add('Market', SHORT[sym] || SYMBOLS[sym]?.name || sym, SYMBOLS[sym]?.name || sym, get(sym), `/indexes?q=${encodeURIComponent(sym)}`)
+    add('Market', SHORT[sym] || SYMBOLS[sym]?.name || sym, SYMBOLS[sym]?.name || sym, get(sym), `/indexes?q=${encodeURIComponent(sym)}`, { query: `${SYMBOLS[sym]?.name || sym} price`, unit: SYMBOLS[sym]?.unit, symbol: sym })
   })
 
   CATEGORIES.forEach((c) =>
     c.basket.forEach((sym) => {
       if (seen.has(sym)) return
       seen.add(sym)
-      add('Stock', sym, SYMBOLS[sym]?.name || sym, get(sym), `/categories/${c.id}`)
+      add('Stock', sym, SYMBOLS[sym]?.name || sym, get(sym), `/categories/${c.id}`, { query: `"${SYMBOLS[sym]?.name || sym}" stock OR shares`, unit: '', symbol: sym, cat: c })
     }),
   )
 

@@ -10,7 +10,15 @@ export const RANGES = [
 export const sliceRange = (s, rangeId) => {
   const n = RANGES.find((r) => r.id === rangeId)?.n ?? 400
   const start = Math.max(0, s.d.length - n)
-  return { ...s, d: s.d.slice(start), v: s.v.slice(start) }
+  return { ...s, d: s.d.slice(start), v: s.v.slice(start), vol: s.vol ? s.vol.slice(start) : undefined }
+}
+
+export const fmtVol = (n) => {
+  if (!n) return '-'
+  if (n >= 1e9) return `${(n / 1e9).toFixed(2)}B`
+  if (n >= 1e6) return `${(n / 1e6).toFixed(2)}M`
+  if (n >= 1e3) return `${(n / 1e3).toFixed(0)}K`
+  return String(n)
 }
 
 export const last = (s) => s.v[s.v.length - 1]

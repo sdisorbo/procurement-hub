@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { RANGES, sliceRange, periodChange, fmtPrice, fmtPct, fmtTick } from '../lib/series'
+import { RANGES, sliceRange, periodChange, fmtPrice, fmtPct, fmtTick, fmtVol } from '../lib/series'
 
 function useWidth(ref) {
   const [w, setW] = useState(720)
@@ -71,6 +71,12 @@ export default function ChartModal({ title, subtitle, series, unit, onClose, chi
 
   const shown = hover ?? s.v.length - 1
 
+  // Volume bars sit under the price chart when the series has them.
+  const hasVol = !!s.vol && s.vol.some((n) => n > 0)
+  const vh = 70
+  const maxVol = hasVol ? Math.max(...s.vol) : 1
+  const barW = Math.max(1, (iw / s.v.length) * 0.72)
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
@@ -89,6 +95,7 @@ export default function ChartModal({ title, subtitle, series, unit, onClose, chi
           </div>
           <div className={`pill ${up ? 'pos' : 'neg'}`}>{fmtPct(change)}</div>
           <span className="muted">{niceDate(s.d[shown])}</span>
+          {hasVol && <span className="muted">Vol {fmtVol(s.vol[shown])}</span>}
         </div>
         <div className="seg">
           {RANGES.map((r) => (
@@ -141,6 +148,21 @@ export default function ChartModal({ title, subtitle, series, unit, onClose, chi
             )}
           </svg>
         </div>
+        {hasVol && (
+          <svg width={width} height={vh} className="vol-svg" aria-label="Volume" onMouseMove={onMove} onTouchMove={onMove} onMouseLeave={() => setHover(null)} onTouchEnd={() => setHover(null)}>
+            <text x={m.l - 8} y={12} textAnchor="end" className="axis">
+              Vol
+            </text>
+            {s.vol.map((n, i) => {
+              const h = Math.max(1, (n / maxVol) * (vh - 18))
+              const dayUp = i === 0 ? true : s.v[i] >= s.v[i - 1]
+              return <rect key={i} x={x(i) - barW / 2} y={vh - 4 - h} width={barW} height={h} fill={dayUp ? 'var(--pos)' : 'var(--neg)'} opacity={hover === i ? 1 : 0.55} />
+            })}
+            <text x={m.l + iw} y={12} textAnchor="end" className="axis">
+              max {fmtVol(maxVol)}
+            </text>
+          </svg>
+        )}
         {series.total > series.members && (
           <p className="note">{series.total - series.members} of {series.total} companies are left out because their price did not load.</p>
         )}
