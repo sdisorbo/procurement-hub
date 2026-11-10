@@ -3,11 +3,12 @@ import { SYMBOLS } from '../data/symbols'
 
 export const norm = (s) => String(s || '').toLowerCase()
 
+// Every typed word has to match the start of a word, so "lum" finds Lumber but not Aluminum.
 export const matches = (q, ...fields) => {
   const n = norm(q).trim()
   if (!n) return true
-  const hay = fields.map(norm).join(' ')
-  return n.split(/\s+/).every((w) => hay.includes(w))
+  const hay = ' ' + fields.map(norm).join(' ').replace(/[^a-z0-9.=^&]+/g, ' ')
+  return n.split(/\s+/).every((w) => hay.includes(' ' + w))
 }
 
 // Everything the home page search can jump to.

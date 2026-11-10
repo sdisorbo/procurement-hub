@@ -2,6 +2,8 @@ import { CATEGORIES, BENCHMARKS } from '../data/categories'
 import { SYMBOLS } from '../data/symbols'
 import { buildIndex } from './series'
 
+const SHORT = { '^GSPC': 'S&P 500', 'CL=F': 'WTI', 'BZ=F': 'Brent', 'HO=F': 'Diesel', 'RB=F': 'Gasoline', 'NG=F': 'Nat gas', 'HG=F': 'Copper', 'ALI=F': 'Aluminum', 'GC=F': 'Gold', 'LBR=F': 'Lumber', 'HRC=F': 'Steel HRC', 'ZC=F': 'Corn', 'ZW=F': 'Wheat', 'ZS=F': 'Soybeans', 'ZL=F': 'Soy oil', 'SB=F': 'Sugar', 'KC=F': 'Coffee', 'CC=F': 'Cocoa', 'CT=F': 'Cotton', BDRY: 'Dry bulk', '^TNX': '10Y yield', '^DJI': 'Dow', 'DX-Y.NYB': 'USD index' }
+
 // 1 day change: the latest point against the one before it.
 export const dayChange = (s) => (s && s.v.length > 1 ? (s.v[s.v.length - 1] / s.v[s.v.length - 2] - 1) * 100 : null)
 
@@ -12,7 +14,7 @@ export function marketMovers(get) {
   const add = (kind, label, name, series, to) => {
     const ch = dayChange(series)
     if (ch == null || !Number.isFinite(ch)) return
-    items.push({ kind, label, name, ch, to })
+    items.push({ kind, label, name, ch, to, sub: kind === 'Stock' ? name : '' })
   }
 
   CATEGORIES.forEach((c) => {
@@ -22,19 +24,22 @@ export function marketMovers(get) {
   const markets = new Set([...BENCHMARKS.flatMap((g) => g.symbols), ...CATEGORIES.flatMap((c) => c.commodities)])
   markets.forEach((sym) => {
     seen.add(sym)
-    add('Market', SYMBOLS[sym]?.name || sym, sym, get(sym), `/indexes?q=${encodeURIComponent(sym)}`)
+    add('Market', SHORT[sym] || SYMBOLS[sym]?.name || sym, SYMBOLS[sym]?.name || sym, get(sym), `/indexes?q=${encodeURIComponent(sym)}`)
   })
 
   CATEGORIES.forEach((c) =>
     c.basket.forEach((sym) => {
       if (seen.has(sym)) return
       seen.add(sym)
-      add('Stock', SYMBOLS[sym]?.name || sym, sym, get(sym), `/categories/${c.id}`)
+      add('Stock', sym, SYMBOLS[sym]?.name || sym, get(sym), `/categories/${c.id}`)
     }),
   )
 
   const sorted = [...items].sort((a, b) => b.ch - a.ch)
+  // The tiles are the biggest moves in either direction, laid out from best to worst.
+  const tiles = [...items].sort((a, b) => Math.abs(b.ch) - Math.abs(a.ch)).slice(0, 16).sort((a, b) => b.ch - a.ch)
   return {
+    tiles,
     up: sorted.filter((i) => i.ch > 0).slice(0, 3),
     down: sorted.filter((i) => i.ch < 0).reverse().slice(0, 3),
     count: items.length,

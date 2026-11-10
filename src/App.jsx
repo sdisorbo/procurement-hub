@@ -1,6 +1,8 @@
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import Ticker from './components/Ticker'
+import HeaderSearch from './components/HeaderSearch'
+import BottomNav from './components/BottomNav'
 import News from './pages/News'
 import Categories from './pages/Categories'
 import Category from './pages/Category'
@@ -19,22 +21,22 @@ export default function App() {
   return (
     <>
       <div className="sticky-head">
-      <header className="topbar">
-        <div className="wrap topbar-in">
-          <NavLink to="/" className="brand">
-            <img src="/favicon.svg" alt="" className="brand-mark" width="26" height="26" />
-            <span className="brand-text">
-            Procurement Hub</span>
-          </NavLink>
-          <nav>
-            <NavLink to="/" end>News</NavLink>
-            <NavLink to="/categories">Categories</NavLink>
-            <NavLink to="/indexes">Indexes</NavLink>
-            <NavLink to="/quiz">Quiz</NavLink>
-          </nav>
-        </div>
-      </header>
-      <Ticker />
+        <header className="topbar">
+          <div className="wrap topbar-in">
+            <NavLink to="/" className="brand">
+              <img src="/favicon.svg" alt="" className="brand-mark" width="26" height="26" />
+              <span className="brand-text">Procurement Hub</span>
+            </NavLink>
+            <HeaderSearch />
+            <nav className="top-nav">
+              <NavLink to="/" end>News</NavLink>
+              <NavLink to="/categories">Categories</NavLink>
+              <NavLink to="/indexes">Indexes</NavLink>
+              <NavLink to="/quiz">Quiz</NavLink>
+            </nav>
+          </div>
+        </header>
+        <Ticker />
       </div>
       <main className="wrap">
         <ScrollTop />
@@ -48,6 +50,7 @@ export default function App() {
         </Routes>
       </main>
       <footer className="wrap foot">Headlines come from Google News. Prices come from Yahoo Finance and can be delayed. Not investment advice.</footer>
+      <BottomNav />
     </>
   )
 }
