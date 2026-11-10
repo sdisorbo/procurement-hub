@@ -391,3 +391,12 @@ input, button { -webkit-appearance: none; appearance: none; }
 .legend { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; color: var(--ink); }
 .legend .swatch { margin-left: 8px; }
 .legend .swatch:first-child { margin-left: 0; }
+
+/* Mover grid pager */
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 10px; }
+.pager button { font: inherit; font-size: 14px; font-weight: 600; min-height: 44px; min-width: 44px; padding: 0 12px; background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; cursor: pointer; }
+.pager button:disabled { opacity: 0.35; cursor: default; }
+.pager button:not(:disabled):active { background: rgba(25,122,86,0.1); }
+@media (hover: hover) { .pager button:not(:disabled):hover { border-color: var(--green); } }
+.pager-info { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; text-align: center; flex: 1; }
+.mover-grid { touch-action: pan-y; }

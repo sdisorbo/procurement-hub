@@ -36,8 +36,8 @@ export function marketMovers(get) {
   )
 
   const sorted = [...items].sort((a, b) => b.ch - a.ch)
-  // The tiles are the biggest moves in either direction, laid out from best to worst.
-  const tiles = [...items].sort((a, b) => Math.abs(b.ch) - Math.abs(a.ch)).slice(0, 16).sort((a, b) => b.ch - a.ch)
+  // Every mover, biggest move first in either direction. The grid pages through this list.
+  const tiles = [...items].sort((a, b) => Math.abs(b.ch) - Math.abs(a.ch))
   return {
     tiles,
     up: sorted.filter((i) => i.ch > 0).slice(0, 3),
