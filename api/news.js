@@ -41,6 +41,49 @@ async function googleNews(q, limit) {
   })
 }
 
+// Bing News RSS. Items carry a thumbnail and the publisher's own link inside the redirect.
+async function bingOne(term, limit) {
+  const xml = await get(`https://www.bing.com/news/search?q=${encodeURIComponent(term)}&format=rss&setlang=en-US`)
+  const cutoff = Date.now() - 10 * 86400000
+  return (xml.match(/<item>[\s\S]*?<\/item>/g) || [])
+    .slice(0, limit)
+    .map((it) => {
+      const wrapped = pick(it, 'link')
+      let link = wrapped
+      try {
+        link = new URL(wrapped).searchParams.get('url') || wrapped
+      } catch {
+        /* keep the wrapped link */
+      }
+      const img = pick(it, 'News:Image')
+      return {
+        title: pick(it, 'title'),
+        source: pick(it, 'News:Source') || 'News',
+        link,
+        date: pick(it, 'pubDate'),
+        image: img ? `${img.replace(/^http:/, 'https:')}&w=480&h=320&c=14` : '',
+      }
+    })
+    .filter((n) => n.title && ts(n.date) > cutoff)
+}
+
+// Bing's feed returns nothing for OR queries, so each OR part is searched on its own.
+async function bingNews(q, limit) {
+  const terms = q
+    .split(/\s+OR\s+/i)
+    .map((t) => t.replace(/"/g, '').trim())
+    .filter(Boolean)
+    .slice(0, 3)
+  const lists = await Promise.all(terms.map((t) => bingOne(t, limit).catch(() => [])))
+  const seen = new Set()
+  return lists
+    .flat()
+    .filter((n) => {
+      const k = n.title.toLowerCase().slice(0, 40)
+      return seen.has(k) ? false : (seen.add(k), true)
+    })
+}
+
 async function inverto() {
   const xml = await get('https://inverto.com/en/insights/feed/')
   return (xml.match(/<item>[\s\S]*?<\/item>/g) || []).map((it) => ({
@@ -93,11 +136,18 @@ export default async function handler(req, res) {
   const errors = []
   const run = (p, label) => p.catch((e) => { errors.push(`${label}: ${e.message || e}`); return [] })
 
-  const [google, inv, gp] = await Promise.all([
+  const [googleRaw, bing, inv, gp] = await Promise.all([
     partners === 'only' ? [] : run(googleNews(q, limit), 'google'),
+    partners === 'only' ? [] : run(bingNews(q, limit), 'bing'),
     partners ? run(inverto(), 'inverto') : [],
     partners ? run(gep(), 'gep') : [],
   ])
+  // Google has the better coverage, Bing has the photos. Matching headlines take Bing's photo.
+  const key = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 48)
+  const bingByTitle = new Map(bing.map((n) => [key(n.title), n]))
+  const google = googleRaw.map((n) => ({ ...n, image: bingByTitle.get(key(n.title))?.image || '' }))
+  const seen = new Set(google.map((n) => key(n.title)))
+  google.push(...bing.filter((n) => !seen.has(key(n.title))))
   let extra = [...inv, ...gp]
   if (partners === 'match') extra = extra.filter((n) => kw.some((k) => n.title.toLowerCase().includes(k)))
   const items = [...google, ...extra.sort((a, b) => ts(b.date) - ts(a.date))]
