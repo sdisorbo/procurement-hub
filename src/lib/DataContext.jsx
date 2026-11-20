@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { ALL_SYMBOLS } from '../data/categories'
+import { ALL_FRED } from '../data/fred'
 
 const Ctx = createContext(null)
 
@@ -10,6 +11,7 @@ export function DataProvider({ children }) {
   const [status, setStatus] = useState('loading') // loading | live | partial | none
   const [ticks, setTicks] = useState({})
   const [dat, setDat] = useState([])
+  const [fred, setFred] = useState({})
   const [updatedAt, setUpdatedAt] = useState(null)
 
   useEffect(() => {
@@ -36,6 +38,24 @@ export function DataProvider({ children }) {
       setStatus(n === 0 ? 'none' : n < ALL_SYMBOLS.length ? 'partial' : 'live')
     }
     run()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  // FRED series change at most daily, so one fetch per visit is enough.
+  useEffect(() => {
+    let cancelled = false
+    Promise.all(
+      chunk(ALL_FRED, 12).map((ids) =>
+        fetch(`/api/fred?ids=${ids.join(',')}`)
+          .then((r) => r.json())
+          .then((j) => j.series || {})
+          .catch(() => ({})),
+      ),
+    ).then((parts) => {
+      if (!cancelled) setFred(Object.assign({}, ...parts))
+    })
     return () => {
       cancelled = true
     }
@@ -92,6 +112,7 @@ export function DataProvider({ children }) {
     }
     const get = (sym) => {
       if (sym.startsWith('DAT:')) return datSeries(sym)
+      if (sym.startsWith('FRED:')) return fred[sym.slice(5)] || null
       if (live[sym]) {
         const t = ticks[sym]
         if (!t) return live[sym]
@@ -114,7 +135,7 @@ export function DataProvider({ children }) {
       return null
     }
     return { get, status, updatedAt, dat, liveCount: Object.keys(live).length }
-  }, [live, ticks, status, updatedAt, dat])
+  }, [live, ticks, status, updatedAt, dat, fred])
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }

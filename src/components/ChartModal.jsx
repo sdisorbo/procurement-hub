@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { RANGES, sliceRange, periodChange, fmtPrice, fmtPct, fmtTick, fmtVol } from '../lib/series'
+import { rangesFor, sliceRange, periodChange, fmtPrice, fmtPct, fmtTick, fmtVol } from '../lib/series'
 
 function useWidth(ref) {
   const [w, setW] = useState(720)
@@ -16,7 +16,8 @@ const niceDate = (s) =>
   new Date(s + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit', timeZone: 'UTC' })
 
 export default function ChartModal({ title, subtitle, series, unit, onClose, children, initialRange = '6M' }) {
-  const [range, setRange] = useState(initialRange)
+  const ranges = rangesFor(series)
+  const [range, setRange] = useState(() => (ranges.some((r) => r.id === initialRange) ? initialRange : series.monthly ? '3Y' : '6M'))
   const [hover, setHover] = useState(null)
   const wrap = useRef(null)
   const width = useWidth(wrap)
@@ -98,7 +99,7 @@ export default function ChartModal({ title, subtitle, series, unit, onClose, chi
           {hasVol && <span className="muted">Vol {fmtVol(s.vol[shown])}</span>}
         </div>
         <div className="seg">
-          {RANGES.map((r) => (
+          {ranges.map((r) => (
             <button key={r.id} className={r.id === range ? 'on' : ''} onClick={() => setRange(r.id)}>
               {r.label}
             </button>

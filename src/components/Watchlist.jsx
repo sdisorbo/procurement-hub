@@ -6,6 +6,7 @@ import { useWatchlist } from '../lib/Watchlist'
 import { computeCategory } from '../lib/useCategory'
 import QuoteRow from './QuoteRow'
 import ConstituentsTable from './ConstituentsTable'
+import FredRow from './FredRow'
 
 export default function Watchlist() {
   const { list } = useWatchlist()
@@ -39,6 +40,7 @@ export default function Watchlist() {
           />
         )
       }
+      if (key.startsWith('fred:')) return <FredRow key={key} id={key.slice(5)} />
       if (key.startsWith('sym:')) {
         const sym = key.slice(4)
         return (

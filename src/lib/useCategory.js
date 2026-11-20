@@ -2,13 +2,14 @@ import { useMemo } from 'react'
 import { useData } from './DataContext'
 import { buildIndex, describeCondition } from './series'
 import { driverName } from '../data/symbols'
+import { FRED } from '../data/fred'
 
 // Everything a category page or card needs, built from whatever series have loaded.
 export function computeCategory(cat, get) {
   const commodities = cat.commodities.map((s) => ({ symbol: s, series: get(s) }))
   const basket = cat.basket.map((s) => ({ symbol: s, series: get(s) }))
   const index = buildIndex(basket.map((b) => b.series))
-  const driverKeys = cat.drivers || cat.commodities
+  const driverKeys = [...(cat.drivers || cat.commodities), ...(cat.fredDrivers || []).map((id) => `FRED:${id}`)]
   let drivers = driverKeys.map((k) => ({ label: driverName(k), series: get(k) }))
   let kind = 'prices'
   if (!driverKeys.length || !drivers.some((d) => d.series)) {

@@ -2,6 +2,8 @@
 export const CATEGORIES = [
   {
     id: 'lumber',
+    fred: ['WPU081', 'WPU0811'],
+    fredDrivers: ['WPU081'],
     name: 'Lumber',
     blurb: 'Softwood, panels, engineered wood',
     commodities: ['LBR=F'],
@@ -25,6 +27,8 @@ export const CATEGORIES = [
   },
   {
     id: 'freight',
+    fred: ['GASDESW', 'TSIFRGHT', 'PCU484121484121'],
+    fredDrivers: ['PCU484121484121'],
     name: 'Freight',
     blurb: 'Ocean, truckload, LTL, parcel',
     commodities: ['BDRY', 'HO=F'],
@@ -53,6 +57,8 @@ export const CATEGORIES = [
   },
   {
     id: 'fabrics',
+    fred: ['PCOTTINDUSDM'],
+    fredDrivers: ['PCOTTINDUSDM'],
     name: 'Fabrics and textiles',
     blurb: 'Cotton, synthetics, yarn, finished cloth',
     commodities: ['CT=F', 'CL=F'],
@@ -76,6 +82,8 @@ export const CATEGORIES = [
   },
   {
     id: 'steel',
+    fred: ['WPU1017', 'WPU101704'],
+    fredDrivers: ['WPU1017'],
     name: 'Steel',
     blurb: 'Coil, plate, rebar, scrap',
     commodities: ['HRC=F', 'SLX'],
@@ -101,6 +109,8 @@ export const CATEGORIES = [
   },
   {
     id: 'metals',
+    fred: ['PCOPPUSDM', 'PALUMUSDM'],
+    fredDrivers: ['PCOPPUSDM', 'PALUMUSDM'],
     name: 'Aluminum and metals',
     blurb: 'Aluminum, copper, mined metals',
     commodities: ['ALI=F', 'HG=F'],
@@ -126,6 +136,8 @@ export const CATEGORIES = [
   },
   {
     id: 'packaging',
+    fred: ['WPU091', 'WPU091503', 'WPU09140551'],
+    fredDrivers: ['WPU091503'],
     name: 'Packaging',
     blurb: 'Corrugate, cans, films, containers',
     commodities: ['NG=F'],
@@ -150,6 +162,8 @@ export const CATEGORIES = [
   },
   {
     id: 'energy',
+    fred: ['GASDESW', 'DHHNGSP', 'POILWTIUSDM'],
+    fredDrivers: ['GASDESW'],
     name: 'Energy and fuel',
     blurb: 'Crude, diesel, natural gas, power inputs',
     commodities: ['CL=F', 'BZ=F', 'NG=F', 'HO=F'],
@@ -174,6 +188,8 @@ export const CATEGORIES = [
   },
   {
     id: 'electronics',
+    fred: ['PCU334413334413'],
+    fredDrivers: [],
     name: 'Electronics',
     blurb: 'Chips, components, contract manufacturing',
     commodities: ['SOXX', 'HG=F'],
@@ -199,6 +215,8 @@ export const CATEGORIES = [
   },
   {
     id: 'chemicals',
+    fred: ['PCU325211325211'],
+    fredDrivers: ['PCU325211325211'],
     name: 'Chemicals and plastics',
     blurb: 'Resins, solvents, specialty chemicals',
     commodities: ['NG=F', 'CL=F'],
@@ -223,6 +241,8 @@ export const CATEGORIES = [
   },
   {
     id: 'food',
+    fred: ['PMAIZMTUSDM', 'PWHEAMTUSDM', 'PSUGAISAUSDM', 'PCOCOUSDM', 'PCOFFROBUSDM'],
+    fredDrivers: [],
     name: 'Food and agriculture',
     blurb: 'Grains, oilseeds, sugar, coffee, cocoa',
     commodities: ['ZC=F', 'ZW=F', 'ZS=F', 'SB=F', 'KC=F', 'CC=F'],
@@ -247,6 +267,8 @@ export const CATEGORIES = [
   },
   {
     id: 'mro',
+    fred: ['WPU1017', 'PCOPPUSDM'],
+    fredDrivers: [],
     name: 'MRO',
     blurb: 'Maintenance, repair and operating supplies',
     commodities: ['HRC=F', 'HG=F'],
@@ -273,6 +295,8 @@ export const CATEGORIES = [
   },
   {
     id: 'datacenters',
+    fred: ['PCOPPUSDM', 'DHHNGSP'],
+    fredDrivers: [],
     name: 'Data centers',
     blurb: 'Power gear, cooling, servers, colocation',
     commodities: ['HG=F', 'NG=F'],
@@ -350,6 +374,8 @@ export const CATEGORIES = [
   },
   {
     id: 'labor',
+    fred: ['TEMPHELPS'],
+    fredDrivers: [],
     name: 'Contingent labor',
     blurb: 'Staffing, temp labor, contractors',
     commodities: [],
@@ -398,6 +424,34 @@ export const CATEGORIES = [
       ['Charles River Labs', 'Wilmington', 'USA', 42.55, -71.17, 'CRL', 'Preclinical research'],
       ['West Pharmaceutical', 'Exton', 'USA', 40.03, -75.63, 'WST', 'Injectable packaging components'],
       ['Samsung Biologics', 'Incheon', 'South Korea', 37.45, 126.65, '207940.KS', 'Contract manufacturing'],
+    ],
+  },
+  {
+    id: 'protein',
+    name: 'Meat and poultry',
+    blurb: 'Chicken, beef, pork, eggs',
+    commodities: ['LE=F', 'GF=F', 'HE=F'],
+    fredDrivers: ['APU0000FF1101', 'APU0000703112', 'APU0000704111', 'PCU311615311615'],
+    fred: ['APU0000FF1101', 'APU0000708111', 'PCU311615311615', 'PCU3116153116151', 'WPU022209', 'PPOULTUSDM', 'APU0000703112', 'APU0000704111', 'PBEEFUSDM', 'PPORKUSDM'],
+    basket: ['TSN', 'PPC', 'HRL', 'CALM', 'SFD', 'JBS'],
+    keywords: ['chicken', 'poultry', 'beef', 'pork', 'cattle', 'meat prices', 'egg prices', 'avian flu'],
+    newsQuery: 'chicken prices OR beef prices OR pork prices OR egg prices OR meat supply',
+    watch: [
+      'Feed grains (corn, soybean meal) are the biggest cost behind chicken and pork.',
+      'Cattle herd size is near multi-decade lows, which keeps beef supply tight for years.',
+      'Disease outbreaks such as avian flu can move egg and poultry prices within weeks.',
+    ],
+    suppliers: [
+      ['Tyson Foods', 'Springdale', 'USA', 36.19, -94.15, 'TSN', 'Chicken, beef, pork, prepared foods'],
+      ['JBS', 'Sao Paulo', 'Brazil', -23.55, -46.63, 'JBS', 'Beef, pork, chicken (Pilgrim\'s)'],
+      ["Pilgrim's Pride", 'Greeley', 'USA', 40.42, -104.71, 'PPC', 'Chicken'],
+      ['Cargill', 'Minneapolis', 'USA', 44.98, -93.27, null, 'Beef, poultry, ingredients (private)'],
+      ['Smithfield Foods', 'Smithfield', 'USA', 36.98, -76.63, 'SFD', 'Pork'],
+      ['Hormel Foods', 'Austin', 'USA', 43.67, -92.97, 'HRL', 'Pork, turkey, prepared meats'],
+      ['Cal-Maine Foods', 'Jackson', 'USA', 32.3, -90.18, 'CALM', 'Shell eggs'],
+      ['Perdue Farms', 'Salisbury', 'USA', 38.36, -75.6, null, 'Chicken, turkey (private)'],
+      ['BRF', 'Itajai', 'Brazil', -26.9, -48.66, 'BRFS', 'Chicken, processed foods'],
+      ['National Beef', 'Kansas City', 'USA', 39.1, -94.58, null, 'Beef (owned by Marfrig)'],
     ],
   },
 ]

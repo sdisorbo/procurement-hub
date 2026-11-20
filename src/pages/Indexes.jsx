@@ -8,6 +8,8 @@ import { useData } from '../lib/DataContext'
 import { buildIndex, RANGES } from '../lib/series'
 import QuoteRow from '../components/QuoteRow'
 import ConstituentsTable from '../components/ConstituentsTable'
+import FredRow from '../components/FredRow'
+import { FRED, FRED_GROUPS } from '../data/fred'
 
 export default function Indexes() {
   const { get } = useData()
@@ -86,6 +88,24 @@ export default function Indexes() {
         </section>
         )
       })}
+
+      {FRED_GROUPS.map((g) => {
+        const ids = g.ids.filter((id) => matches(q, FRED[id].title, id, g.title, FRED[id].src, 'fred'))
+        if (!ids.length) return null
+        return (
+          <section key={g.title}>
+            <h2>{g.title} (FRED)</h2>
+            <div className="rows">
+              {ids.map((id) => (
+                <FredRow key={id} id={id} />
+              ))}
+            </div>
+          </section>
+        )
+      })}
+      <p className="muted dat-sub">
+        FRED rows show the change from the previous reading and the year on year change. Source: Federal Reserve Bank of St. Louis, with BLS, EIA, BTS and IMF data.
+      </p>
     </div>
   )
 }

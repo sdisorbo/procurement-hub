@@ -9,6 +9,7 @@ import NewsList from '../components/NewsList'
 import ConstituentsTable from '../components/ConstituentsTable'
 import DatPanel from '../components/DatPanel'
 import WatchStar from '../components/WatchStar'
+import { FredSection } from '../components/FredRow'
 
 export default function Category() {
   const { id } = useParams()
@@ -62,6 +63,13 @@ function CategoryView({ cat }) {
           />
         ))}
       </div>
+
+      {cat.fred?.length > 0 && (
+        <>
+          <h2>Government price data</h2>
+          <FredSection ids={cat.fred} />
+        </>
+      )}
 
       {cat.dat && (
         <>

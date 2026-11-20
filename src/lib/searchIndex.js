@@ -1,5 +1,6 @@
 import { CATEGORIES, BENCHMARKS } from '../data/categories'
 import { SYMBOLS } from '../data/symbols'
+import { FRED, FRED_GROUPS } from '../data/fred'
 
 export const norm = (s) => String(s || '').toLowerCase()
 
@@ -34,6 +35,15 @@ export const SEARCH_ITEMS = [
       sub: s,
       to: `/indexes?q=${encodeURIComponent(s)}`,
       text: [SYMBOLS[s]?.name, s, g.title].join(' '),
+    })),
+  ),
+  ...FRED_GROUPS.flatMap((g) =>
+    g.ids.map((id) => ({
+      type: 'FRED',
+      label: FRED[id].title,
+      sub: `${FRED[id].unit}, ${FRED[id].src}`,
+      to: `/indexes?q=${encodeURIComponent(FRED[id].title)}`,
+      text: [FRED[id].title, id, g.title, FRED[id].src, 'fred government'].join(' '),
     })),
   ),
 ]

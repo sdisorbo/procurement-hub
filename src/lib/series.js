@@ -1,15 +1,31 @@
 import { SYMBOLS } from '../data/symbols'
 
 export const RANGES = [
-  { id: '1M', label: '1M', n: 22 },
-  { id: '3M', label: '3M', n: 64 },
-  { id: '6M', label: '6M', n: 127 },
-  { id: '1Y', label: '1Y', n: 400 },
+  { id: '1M', label: '1M', days: 31 },
+  { id: '3M', label: '3M', days: 92 },
+  { id: '6M', label: '6M', days: 183 },
+  { id: '1Y', label: '1Y', days: 366 },
 ]
 
+// Monthly series (DAT, FRED) get longer windows, since a month is only one point.
+export const RANGES_MONTHLY = [
+  { id: '1Y', label: '1Y', days: 366 },
+  { id: '3Y', label: '3Y', days: 1096 },
+  { id: '5Y', label: '5Y', days: 1827 },
+]
+
+export const rangesFor = (s) => (s && s.monthly ? RANGES_MONTHLY : RANGES)
+
 export const sliceRange = (s, rangeId) => {
-  const n = RANGES.find((r) => r.id === rangeId)?.n ?? 400
-  const start = Math.max(0, s.d.length - n)
+  const list = rangesFor(s)
+  const r = list.find((x) => x.id === rangeId) || list[list.length - 1]
+  const last = new Date(s.d[s.d.length - 1] + 'T12:00:00Z')
+  last.setUTCDate(last.getUTCDate() - r.days)
+  const from = last.toISOString().slice(0, 10)
+  let start = s.d.findIndex((d) => d >= from)
+  if (start < 0) start = 0
+  // Always keep at least two points so a line can be drawn.
+  start = Math.min(start, Math.max(0, s.d.length - 2))
   return { ...s, d: s.d.slice(start), v: s.v.slice(start), vol: s.vol ? s.vol.slice(start) : undefined }
 }
 

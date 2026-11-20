@@ -1,3 +1,4 @@
+import { FRED } from './fred'
 // display name and unit
 const S = (name, unit = '') => ({ name, unit })
 
@@ -150,6 +151,10 @@ export const SYMBOLS = {
   RHI: S('Robert Half'), MAN: S('ManpowerGroup'), KFRC: S('Kforce'), KELYA: S('Kelly Services'), ASGN: S('ASGN'),
   TBI: S('TrueBlue'), 'RAND.AS': S('Randstad'), 'ADEN.SW': S('Adecco'),
 
+  // Meat and poultry
+  'LE=F': S('Live cattle', 'c/lb'), 'GF=F': S('Feeder cattle', 'c/lb'), 'HE=F': S('Lean hogs', 'c/lb'),
+  PPC: S("Pilgrim's Pride"), HRL: S('Hormel Foods'), CALM: S('Cal-Maine Foods'), SFD: S('Smithfield Foods'), JBS: S('JBS'),
+
   // Life sciences
   XBI: S('Biotech ETF (XBI)'), TMO: S('Thermo Fisher'), DHR: S('Danaher'), A: S('Agilent'), WAT: S('Waters'),
   IQV: S('IQVIA'), CRL: S('Charles River Labs'), MTD: S('Mettler-Toledo'), WST: S('West Pharmaceutical'),
@@ -160,6 +165,7 @@ export const nameOf = (sym) => SYMBOLS[sym]?.name || sym
 const EQUIP = { van: 'van', reefer: 'reefer', flatbed: 'flatbed' }
 // Names for DAT rate series, keyed like DAT:spot:van
 export const driverName = (key) => {
+  if (key.startsWith('FRED:')) return FRED[key.slice(5)]?.title || key
   if (key.startsWith('DAT:')) {
     const [, kind, eq] = key.split(':')
     return `DAT ${EQUIP[eq]} ${kind} rate`
